@@ -64,9 +64,9 @@ namespace gcgcg
       objetoNovo = new Objeto(objetoId, null);
       Ponto4D ponto = new Ponto4D();
       for(int x=0; x<360; x+=5){
-        ponto = Matematica.GerarPtosCirculo(x, 0.3);
+        ponto = Matematica.GerarPtosCirculo(x, 0.5);
         GL.Enable(EnableCap.ProgramPointSize);
-        GL.PointSize(6.0f);
+        GL.PointSize(5.0f);
         objetoNovo.PontosAdicionar(ponto);
       }
       
