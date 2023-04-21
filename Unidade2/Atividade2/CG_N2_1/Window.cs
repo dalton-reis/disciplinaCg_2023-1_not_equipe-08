@@ -60,17 +60,14 @@ namespace gcgcg
       _shaderVermelho = new Shader("Shaders/shader.vert", "Shaders/shaderVermelho.frag");
       _shaderVerde = new Shader("Shaders/shader.vert", "Shaders/shaderVerde.frag");
       _shaderAzul = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
-      
+
       objetoNovo = new Objeto(objetoId, null);
-      Ponto4D ponto = new Ponto4D();
-      for(int x=0; x<360; x+=5){
-        ponto = Matematica.GerarPtosCirculo(x, 0.5);
-        GL.Enable(EnableCap.ProgramPointSize);
-        GL.PointSize(5.0f);
-        objetoNovo.PontosAdicionar(ponto);
-      }
-      
+
+      Circulo circulo =  new Circulo(objetoNovo);
+      objetoNovo = circulo.GerarCirculo();
       objetoNovo.Atualizar();
+
+
       objetosLista.Add(objetoNovo);
       objetoNovo = null;
     }
