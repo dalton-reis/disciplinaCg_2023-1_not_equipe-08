@@ -21,6 +21,10 @@ namespace gcgcg
     private List<Objeto> objetosLista = new List<Objeto>();
     private Objeto objetoSelecionado = null;
     private char rotulo = '@';
+    private SrPalito srPalito = null;
+    private float stepSize = 0.1f;
+    private float rotacao = 5f;
+    private float escala = 0.1f;
 
     private readonly float[] _sruEixos =
     {
@@ -76,103 +80,17 @@ namespace gcgcg
       GL.BindVertexArray(_vertexArrayObject_sruEixos);
       GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
       GL.EnableVertexAttribArray(0);
-      _shaderVermelha = new Shader("Shaders/shader.vert", "Shaders/shaderVermelha.frag");
+      _shaderVermelha = new Shader("Shaders/shader.vert", "Shaders/shaderVermelho.frag");
       _shaderVerde = new Shader("Shaders/shader.vert", "Shaders/shaderVerde.frag");
       _shaderAzul = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
 
-      Objeto objetoNovo = null;
-
-      // #region Objeto: polígono qualquer  
-      // objetoNovo = new Poligono(null);
-      // objetoNovo.PontosAdicionar(new Ponto4D(0.25, 0.25));
-      // objetoNovo.PontosAdicionar(new Ponto4D(0.75, 0.25));
-      // objetoNovo.PontosAdicionar(new Ponto4D(0.75, 0.75));
-      // objetoNovo.PontosAdicionar(new Ponto4D(0.50, 0.50));
-      // objetoNovo.PontosAdicionar(new Ponto4D(0.25, 0.75));
-      // ObjetoNovo(objetoNovo); objetoNovo = null;
-      // #endregion
-      // #region NÃO USAR: declara um objeto filho ao polígono
-      // objetoNovo = new Ponto(null, new Ponto4D(0.50, 0.75));
-      // ObjetoNovo(objetosLista[0], objetoNovo); objetoNovo = null;
-      // #endregion
-
-      // #region Objeto: retângulo  
-      // objetoNovo = new Retangulo(null, new Ponto4D(-0.25, 0.25), new Ponto4D(-0.75, 0.75));
-      // objetoNovo.PrimitivaTipo = PrimitiveType.LineLoop;
-      // ObjetoNovo(objetoNovo); objetoNovo = null;
-      // #endregion
-
-      // #region Objeto: segmento de reta  
-      // objetoNovo = new SegReta(null, new Ponto4D(-0.25, -0.25), new Ponto4D(-0.75, -0.75));
-      // ObjetoNovo(objetoNovo); objetoNovo = null;
-      // #endregion
+      //Objeto objetoNovo = null;
       
-      double[] x = new double[4] {0.5, 0.5, -0.5, -0.5};
-      double[] y = new double[4] {-0.5, 0.5 ,0.5, -0.5};
-
       #region Objeto: ponto  
-
-        for (int i = 0; i < 4; i++)
-        {
-          objetoNovo = new Ponto(null, new Ponto4D(x[i], y[i]));
-          objetoNovo.PrimitivaTipo = PrimitiveType.Points;
-          objetoNovo.PrimitivaTamanho = 10;
-          ObjetoNovo(objetoNovo);
-          objetoNovo = null;
-        }
+      srPalito = new SrPalito(null, new Ponto4D(), 0.5F, 45F);
+      srPalito.shaderCor = new Shader("Shaders/shader.vert", "Shaders/shaderBranco.frag");
+      ObjetoNovo(srPalito);
       #endregion
-
-      #region Objeto: linhas  
-        objetoNovo = new SegReta(null, new Ponto4D(x[1], y[1]), new Ponto4D(x[2], y[2]));
-        objetoNovo.PrimitivaTipo = PrimitiveType.Lines;
-        objetoNovo.PrimitivaTamanho = 10;
-        ObjetoNovo(objetoNovo); objetoNovo = null;
-
-        objetoNovo = new SegReta(null, new Ponto4D(x[3], y[3]), new Ponto4D(x[0], y[0]));
-        objetoNovo.PrimitivaTipo = PrimitiveType.Lines;
-        objetoNovo.PrimitivaTamanho = 10;
-        ObjetoNovo(objetoNovo); objetoNovo = null;
-      #endregion
-
-      Console.WriteLine(objetosLista);
-      // #region Objeto: quadrado  
-      //   for (int i = 0; i < 3; i++)
-      //   {
-      //     objetoNovo = new SegReta(null, new Ponto4D(x[i], y[i]), new Ponto4D(x[i+1], y[i+1]));
-      //     objetoNovo.PrimitivaTipo = PrimitiveType.Lines;
-      //     objetoNovo.PrimitivaTamanho = 10;
-      //     ObjetoNovo(objetoNovo); objetoNovo = null;
-
-      //     if(i == 2){
-      //       objetoNovo = new SegReta(null, new Ponto4D(x[3], y[3]), new Ponto4D(x[0], y[0]));
-      //       objetoNovo.PrimitivaTipo = PrimitiveType.Lines;
-      //       objetoNovo.PrimitivaTamanho = 10;
-      //       ObjetoNovo(objetoNovo); objetoNovo = null;
-      //     }
-      //   }
-      // #endregion
-
-
-#if CG_Privado
-      #region Objeto: circulo  
-      objetoNovo = new Circulo(null, 0.2, new Ponto4D());
-      objetoNovo.shaderCor = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag");
-      ObjetoNovo(objetoNovo); objetoNovo = null;
-      #endregion
-
-      #region Objeto: SrPalito  
-      objetoNovo = new SrPalito(null);
-      ObjetoNovo(objetoNovo); objetoNovo = null;
-      SrPalito objSrPalito = objetoSelecionado as SrPalito;
-      #endregion
-
-      #region Objeto: Spline
-      objetoNovo = new Spline(null);
-      ObjetoNovo(objetoNovo); objetoNovo = null;
-      Spline objSpline = objetoSelecionado as Spline;
-      #endregion
-#endif
-
     }
 
     protected override void OnRenderFrame(FrameEventArgs e)
@@ -198,10 +116,35 @@ namespace gcgcg
       var input = KeyboardState;
       if (input.IsKeyDown(Keys.Escape))
       {
-        // Close();
+        Close();
       }
       else
       {
+        if (input.IsKeyPressed(Keys.Q))
+        {
+          srPalito.Mover(-stepSize);
+        }
+        if (input.IsKeyPressed(Keys.W))
+        {
+          srPalito.Mover(stepSize);
+        }
+        if (input.IsKeyPressed(Keys.A))
+        {
+          srPalito.Rotacao(rotacao);
+        }
+        if (input.IsKeyPressed(Keys.S))
+        {
+          srPalito.Rotacao(-rotacao);
+        }
+        if (input.IsKeyPressed(Keys.Z))
+        {
+          srPalito.Escala(-escala);
+        }
+        if (input.IsKeyPressed(Keys.X))
+        {
+          srPalito.Escala(escala);
+        }
+
         if (input.IsKeyDown(Keys.Right))
         {
           objetoSelecionado.PontosAlterar(new Ponto4D(objetoSelecionado.PontosId(0).X + 0.005, objetoSelecionado.PontosId(0).Y, 0), 0);
@@ -242,7 +185,7 @@ namespace gcgcg
             {
               if (input.IsKeyPressed(Keys.C))
               {
-                objetoSelecionado.shaderCor = new Shader("Shaders/shader.vert", "Shaders/shaderCiano.frag");
+                objetoSelecionado.shaderCor = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
               }
             }
           }

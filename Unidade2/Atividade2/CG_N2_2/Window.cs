@@ -74,12 +74,6 @@ namespace gcgcg
       objetosLista.Add(objetoNovo);
       objetoNovo = null;
     }
-
-    private void textBox1_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
-    {
-        
-    }
-
     protected override void OnRenderFrame(FrameEventArgs e)
     {
       base.OnRenderFrame(e);
