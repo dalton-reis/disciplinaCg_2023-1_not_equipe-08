@@ -17,25 +17,28 @@ namespace gcgcg
   {
     protected List<Ponto4D> pontosLista = new List<Ponto4D>();
 
-    protected char rotulo;
+    protected char rotulo = '@';
+    public char Rotulo { get => rotulo; set => rotulo = value; }
     protected Objeto paiRef;
     public Objeto PaiRef { get => paiRef; }
-    private PrimitiveType primitivaTipo = PrimitiveType.LineLoop;
+    private PrimitiveType primitivaTipo = PrimitiveType.Points;
     public PrimitiveType PrimitivaTipo { get => primitivaTipo; set => primitivaTipo = value; }
+    private float primitivaTamanho = 1;
+    public float PrimitivaTamanho { get => primitivaTamanho; set => primitivaTamanho = value; }
     private List<Objeto> objetosLista = new List<Objeto>();
 
     private int _vertexBufferObject_sruEixos;
     private int _vertexArrayObject_sruEixos;
     private Shader _shaderBranco;
     private Shader _shaderAmarelo;
+    private Shader _shaderVermelho;
 
-    public Objeto(char rotulo, Objeto paiRef)
+    public Objeto( Objeto paiRef)
     {
-      this.rotulo = rotulo;
       this.paiRef = paiRef;
     }
 
-    public void Atualizar()
+    public void ObjetoAtualizar()
     {
       float[] vertices = new float[pontosLista.Count * 3];
       int ptoLista = 0;
@@ -56,14 +59,15 @@ namespace gcgcg
       GL.EnableVertexAttribArray(0);
       _shaderBranco = new Shader("Shaders/shader.vert", "Shaders/shaderBranco.frag");
       _shaderAmarelo = new Shader("Shaders/shader.vert", "Shaders/shaderAmarelo.frag");
+      _shaderVermelho = new Shader("Shaders/shader.vert", "Shaders/shaderVermelho.frag");
     }
 
     public void Desenhar()
     {
 #if CG_OpenGL && !CG_DirectX
       GL.BindVertexArray(_vertexArrayObject_sruEixos);
-      _shaderAmarelo.Use();
-      GL.DrawArrays(PrimitiveType.Points, 0, pontosLista.Count); 
+      _shaderVermelho.Use();
+      GL.DrawArrays(PrimitivaTipo, 0, pontosLista.Count); 
 #elif CG_DirectX && !CG_OpenGL
       Console.WriteLine(" .. Coloque aqui o seu código em DirectX");
 #elif (CG_DirectX && CG_OpenGL) || (!CG_DirectX && !CG_OpenGL)
