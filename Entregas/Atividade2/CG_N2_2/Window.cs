@@ -19,9 +19,9 @@ namespace gcgcg
   {
     private readonly float[] _sruEixos =
     {
-       0.6f,  0.0f,  0.0f, // X+
+       0.5f,  0.0f,  0.0f, // X+
        0.0f,  0.0f,  0.0f, // X-
-       0.0f,  0.6f,  0.0f, // Y+
+       0.0f,  0.5f,  0.0f, // Y+
        0.0f,  0.0f,  0.0f, // Y-
        0.0f,  0.0f,  0.0f, // Z+
        0.0f,  0.0f,  0.0f, // Z-
@@ -35,12 +35,31 @@ namespace gcgcg
     private Shader _shaderAzul;
 
     private List<Objeto> objetosLista = new List<Objeto>();
-    private char objetoId = '@';
+    protected char rotulo = '@';
     private Objeto objetoNovo = null;
+
+    private Objeto objetoSelecionado = null;
+    private int contador = 0;
 
     public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
            : base(gameWindowSettings, nativeWindowSettings)
     {
+    }
+
+    private void ObjetoNovo(Objeto objeto, Objeto objetoFilho = null)
+    {
+        if (objetoFilho == null)
+        {
+            this.objetosLista.Add(objeto);
+            objeto.Rotulo = this.rotulo = Utilitario.charProximo(this.rotulo);
+            this.objetoSelecionado = objeto;
+        }
+        else
+        {
+            objeto.FilhoAdicionar(objetoFilho);
+            objetoFilho.Rotulo = this.rotulo = Utilitario.charProximo(this.rotulo);
+            this.objetoSelecionado = objetoFilho;
+        }
     }
 
     protected override void OnLoad()
@@ -60,18 +79,11 @@ namespace gcgcg
       _shaderVermelho = new Shader("Shaders/shader.vert", "Shaders/shaderVermelho.frag");
       _shaderVerde = new Shader("Shaders/shader.vert", "Shaders/shaderVerde.frag");
       _shaderAzul = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
-      
-      objetoNovo = new Objeto(objetoId, null);
-      Ponto4D ponto = new Ponto4D();
-      for(int x=0; x<360; x+=5){
-        ponto = Matematica.GerarPtosCirculo(x, 0.3);
-        GL.Enable(EnableCap.ProgramPointSize);
-        GL.PointSize(6.0f);
-        objetoNovo.PontosAdicionar(ponto);
-      }
-      
-      objetoNovo.Atualizar();
-      objetosLista.Add(objetoNovo);
+      GL.PointSize(5.0f);
+      Objeto retangulo = new Retangulo(null, new Ponto4D(-0.5, -0.5), new Ponto4D(0.5, 0.5));
+      objetoNovo = retangulo;
+      ObjetoNovo(objetoNovo);
+      objetoSelecionado = retangulo;
       objetoNovo = null;
     }
     protected override void OnRenderFrame(FrameEventArgs e)
@@ -84,7 +96,9 @@ namespace gcgcg
       Sru3D();
 #endif
       for (var i = 0; i < objetosLista.Count; i++)
+      {
         objetosLista[i].Desenhar();
+      }
 
       SwapBuffers();
     }
@@ -97,6 +111,42 @@ namespace gcgcg
       if (input.IsKeyDown(Keys.Escape))
       {
         Close();
+      } else if (input.IsKeyPressed(Keys.Space)) {
+        switch (contador)
+        {
+        case 0:
+          objetoSelecionado.PrimitivaTipo = PrimitiveType.Points;
+          contador++;
+        break;
+        case 1:
+          objetoSelecionado.PrimitivaTipo = PrimitiveType.Lines;
+          contador++;
+        break;
+        case 2:
+          objetoSelecionado.PrimitivaTipo = PrimitiveType.LineLoop;
+          contador++;
+        break;
+        case 3:
+          objetoSelecionado.PrimitivaTipo = PrimitiveType.LineStrip;
+          contador++;
+        break;
+        case 4:
+          objetoSelecionado.PrimitivaTipo = PrimitiveType.Triangles;
+          contador++;
+        break;
+        case 5:
+          objetoSelecionado.PrimitivaTipo = PrimitiveType.TriangleStrip;
+          contador++;
+        break;
+        case 6:
+          objetoSelecionado.PrimitivaTipo = PrimitiveType.TriangleFan;
+          contador = 0;
+        break;
+        default:
+        break;
+        }
+
+        objetoSelecionado.ObjetoAtualizar();
       }
     }
 
@@ -109,6 +159,7 @@ namespace gcgcg
 
     protected override void OnUnload()
     {
+      
       GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
       GL.BindVertexArray(0);
       GL.UseProgram(0);
