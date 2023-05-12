@@ -8,7 +8,9 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Windowing.Desktop;
+using System;
 using System.Collections.Generic;
+using OpenTK.Mathematics;
 
 //FIXME: padrão Singleton
 
@@ -18,7 +20,6 @@ namespace gcgcg
   {
     private List<Objeto> objetosLista = new List<Objeto>();
     private Objeto objetoSelecionado = null;
-    private Spline spline = null;
     private char rotulo = '@';
 
     private readonly float[] _sruEixos =
@@ -34,6 +35,10 @@ namespace gcgcg
     private Shader _shaderVermelha;
     private Shader _shaderVerde;
     private Shader _shaderAzul;
+    private Joystick joystick;
+
+    private bool _firstMove = true;
+    private Vector2 _lastPos;
 
     public Mundo(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
            : base(gameWindowSettings, nativeWindowSettings)
@@ -72,17 +77,33 @@ namespace gcgcg
       GL.BindVertexArray(_vertexArrayObject_sruEixos);
       GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
       GL.EnableVertexAttribArray(0);
-      _shaderVermelha = new Shader("Shaders/shader.vert", "Shaders/shaderVermelho.frag");
+      _shaderVermelha = new Shader("Shaders/shader.vert", "Shaders/shaderVermelha.frag");
       _shaderVerde = new Shader("Shaders/shader.vert", "Shaders/shaderVerde.frag");
       _shaderAzul = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
 
-      Objeto objetoNovo = null;
+      joystick = new Joystick(null);
+      ObjetoNovo(joystick);
 
-      #region Objeto: spline  
-      spline = new Spline(null);
-      ObjetoNovo(spline);
-      objetoNovo = null;
+#if CG_Privado
+      #region Objeto: circulo  
+      objetoNovo = new Circulo(null, 0.2, new Ponto4D());
+      objetoNovo.shaderCor = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag");
+      ObjetoNovo(objetoNovo); objetoNovo = null;
       #endregion
+
+      #region Objeto: SrPalito  
+      objetoNovo = new SrPalito(null);
+      ObjetoNovo(objetoNovo); objetoNovo = null;
+      SrPalito objSrPalito = objetoSelecionado as SrPalito;
+      #endregion
+
+      #region Objeto: Spline
+      objetoNovo = new Spline(null);
+      ObjetoNovo(objetoNovo); objetoNovo = null;
+      Spline objSpline = objetoSelecionado as Spline;
+      #endregion
+#endif
+
     }
 
     protected override void OnRenderFrame(FrameEventArgs e)
@@ -104,47 +125,59 @@ namespace gcgcg
     {
       base.OnUpdateFrame(e);
 
+      #region Teclado
       var input = KeyboardState;
       if (input.IsKeyDown(Keys.Escape))
       {
         Close();
       }
+      if(input.IsKeyDown(Keys.C) || input.IsKeyDown(Keys.W)){
+        Ponto4D novaPos = new Ponto4D(x:0, y:0.01f);
+        joystick.Mover(novaPos);
+      }
+      if(input.IsKeyDown(Keys.D)){
+        Ponto4D novaPos = new Ponto4D(x:0.01f, y:0);
+        joystick.Mover(novaPos);
+      }
+      if(input.IsKeyDown(Keys.E) ||input.IsKeyDown(Keys.A)){
+        Ponto4D novaPos = new Ponto4D(x:-0.01f, y:0);
+        joystick.Mover(novaPos);
+      }
+      if(input.IsKeyDown(Keys.B) ||input.IsKeyDown(Keys.S)){
+        Ponto4D novaPos = new Ponto4D(x:0, y:-0.01f);
+        joystick.Mover(novaPos);
+      }
+      #endregion
 
-      if (input.IsKeyPressed(Keys.Space))
-      {
-        spline.SelecionarProximoPonto();
-      }
+      #region  Mouse
+      var mouse = MouseState;
+      // Mouse FIXME: inverte eixo Y, fazer NDC para proporção em tela
+      Vector2i janela = this.ClientRectangle.Size;
 
-      if (input.IsKeyPressed(Keys.C) || input.IsKeyPressed(Keys.W))
+      if (input.IsKeyDown(Keys.LeftShift))
       {
-        spline.MoverPontoSelecionado(new Ponto4D(y: 0.1));
-      }
-      if (input.IsKeyPressed(Keys.B) || input.IsKeyPressed(Keys.S))
-      {
-        spline.MoverPontoSelecionado(new Ponto4D(y: -0.1));
-      }
-      if (input.IsKeyPressed(Keys.E) || input.IsKeyPressed(Keys.A))
-      {
-        spline.MoverPontoSelecionado(new Ponto4D(x: -0.1));
-      }
-      if (input.IsKeyPressed(Keys.D))
-      {
-        spline.MoverPontoSelecionado(new Ponto4D(x: 0.1));
-      }
+        if (_firstMove)
+        {
+          _lastPos = new Vector2(mouse.X, mouse.Y);
+          _firstMove = false;
+        }
+        else
+        {
+          var deltaX = (mouse.X - _lastPos.X) / janela.X;
+          var deltaY = (mouse.Y - _lastPos.Y) / janela.Y;
+          _lastPos = new Vector2(mouse.X, mouse.Y);
 
-      if (input.IsKeyPressed(Keys.KeyPadAdd))
-      {
-        spline.AdicionarPontoSpline();
+          objetoSelecionado.PontosAlterar(new Ponto4D(objetoSelecionado.PontosId(0).X + deltaX, objetoSelecionado.PontosId(0).Y + deltaY, 0), 0);
+          objetoSelecionado.ObjetoAtualizar();
+        }
       }
-      if (input.IsKeyPressed(Keys.KeyPadSubtract))
+      if (input.IsKeyDown(Keys.RightShift))
       {
-        spline.RemoverPontoSpline();
+        objetoSelecionado.PontosAlterar(new Ponto4D(mouse.X / janela.X, mouse.Y / janela.Y, 0), 0);
+        objetoSelecionado.ObjetoAtualizar();
       }
+      #endregion
 
-      if (input.IsKeyPressed(Keys.R))
-      {
-        spline.ReiniciarSpline();
-      }
     }
 
     protected override void OnResize(ResizeEventArgs e)

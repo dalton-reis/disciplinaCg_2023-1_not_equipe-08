@@ -9,135 +9,124 @@ namespace gcgcg
 {
   internal class Spline : Objeto
   {
-    private readonly double _bezierStep;
+    private int pontosBezier;
+    private double incrementoBezier;
 
-    private readonly List<Ponto> _splinePoints;
-    private readonly Shader _splintPointShader;
-    private readonly Shader _splintPointSelectedShader;
+    private readonly List<Ponto> pontosSpline;
+    private readonly Shader shaderSpline;
+    private readonly Shader shaderPontoSelecionado;
 
-    private readonly List<SegReta> _splineLines;
-    private readonly Shader _splineLineShader;
-    private readonly Shader _bezierLineShader;
+    private readonly List<SegReta> linhasSpline;
+    private readonly Shader shaderLinhaSpline;
+    private readonly Shader shaderLinhaBezier;
 
-    private int _selectedPointIndex;
+    private int pontoSelecionado;
 
-    public Spline(Objeto paiRef, double bezierStep) : base(paiRef)
+    public Spline(Objeto paiRef) : base(paiRef)
     {
       PrimitivaTipo = PrimitiveType.Points;
       PrimitivaTamanho = 10;
 
-      _bezierStep = bezierStep;
+      pontosBezier = 10;
+      incrementoBezier = 1.0 / (double)pontosBezier;
 
-      _splinePoints = new List<Ponto>();
-      _splintPointShader = new Shader("Shaders/shader.vert", "Shaders/shaderVermelho.frag");
-      _splintPointSelectedShader = new Shader("Shaders/shader.vert", "Shaders/shaderVerde.frag");
+      pontosSpline = new List<Ponto>();
+      shaderSpline = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
+      shaderPontoSelecionado = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
 
-      _splineLines = new List<SegReta>();
-      _splineLineShader = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
-      _bezierLineShader = new Shader("Shaders/shader.vert", "Shaders/shaderAmarelo.frag");
+      linhasSpline = new List<SegReta>();
+      shaderLinhaSpline = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
+      shaderLinhaBezier = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
 
-      Reset();
+      ReiniciarSpline();
     }
 
-    public void Reset()
+    public void ReiniciarSpline()
     {
       pontosLista.Clear();
-      _splineLines.Clear();
-      _splinePoints.Clear();
+      linhasSpline.Clear();
+      pontosSpline.Clear();
 
-      AddPoints();
+      AdicionaPontos();
       Atualizar();
     }
 
-    private void AddPoints()
+    private void AdicionaPontos()
     {
-      var xKeyPoints = new double[] { -0.5, -0.5, 0.5, 0.5 };
-      var yKeyPoints = new double[] { -0.5, 0.5, 0.5, -0.5 };
-      for (var i = 0; i < xKeyPoints.Length; i++)
+      var pontosX = new double[] { -0.5, -0.5, 0.5, 0.5 };
+      var pontosY = new double[] { -0.5, 0.5, 0.5, -0.5 };
+      for (var i = 0; i < pontosX.Length; i++)
       {
-        _splinePoints.Add(GetPoint(xKeyPoints[i], yKeyPoints[i]));
+        pontosSpline.Add(GetPonto(pontosX[i], pontosY[i]));
       }
 
-      UpdateSelectedPoint(0);
+      AtualizaPontoSelecionado(0);
     }
 
-    private Ponto GetPoint(double x = 0.0, double y = 0.0)
+    private Ponto GetPonto(double x = 0.0, double y = 0.0)
     {
       var point = new Ponto(null, new Ponto4D(x: x, y: y));
       point.PrimitivaTamanho = 20;
-      point.shaderCor = _splintPointShader;
+      point.shaderCor = shaderSpline;
       return point;
     }
 
-    private void AddLines()
+    private void AdicionaLinhas()
     {
-      for (var i = 0; i < _splinePoints.Count - 1; i++)
+      for (var i = 0; i < pontosSpline.Count - 1; i++)
       {
-        var line = new SegReta(null, _splinePoints[i].Position, _splinePoints[i + 1].Position);
-        line.shaderCor = _splineLineShader;
-        _splineLines.Add(line);
+        var line = new SegReta(null, pontosSpline[i].Position, pontosSpline[i + 1].Position);
+        line.shaderCor = shaderLinhaSpline;
+        linhasSpline.Add(line);
       }
     }
 
-    private void AddBezier()
+    private void AdicionaBezier()
     {
       var bezierPoints = new List<Ponto4D>();
-      for (var t = 0.0; t <= 1; t += _bezierStep)
+      for (var t = 0.0; t <= 1; t += incrementoBezier)
       {
-        bezierPoints.Add(GetBezierValue(t));
+        bezierPoints.Add(CalculaBezier(t));
       }
 
       for (var i = 0; i < bezierPoints.Count - 1; i++)
       {
         var line = new SegReta(null, bezierPoints[i], bezierPoints[i + 1]);
-        line.shaderCor = _bezierLineShader;
-        _splineLines.Add(line);
+        line.shaderCor = shaderLinhaBezier;
+        linhasSpline.Add(line);
       }
     }
 
-    private Ponto4D GetBezierValue(double t)
+    private Ponto4D CalculaBezier(double t)
     {
-      var n = _splinePoints.Count - 1;
-      var x = 0.0;
-      var y = 0.0;
-      for (var i = 0; i < _splinePoints.Count; i++)
-      {
-        var basis = GetBernstein(n, i, t);
-        x += basis * _splinePoints[i].Position.X;
-        y += basis * _splinePoints[i].Position.Y;
-      }
-      return new Ponto4D(x: x, y: y);
-    }
+      var coeff = (1 - t);
+      var bezierX = 0.0;
+      bezierX += coeff*coeff*coeff*pontosSpline[0].Position.X;
+      bezierX += 3*t*coeff*coeff*pontosSpline[1].Position.X;
+      bezierX += 3*t*t*coeff*pontosSpline[2].Position.X;
+      bezierX += t*t*t*pontosSpline[3].Position.X;
 
-    private double GetBernstein(int n, int i, double t)
-    {
-      var coefficient = GetFactorial(n) / (GetFactorial(i) * GetFactorial(n - i));
-      return coefficient * Math.Pow(t, i) * Math.Pow(1 - t, n - i);
-    }
-
-    private double GetFactorial(int n)
-    {
-      var result = 1.0;
-      for (var i = 2; i <= n; i++)
-      {
-        result *= i;
-      }
-      return result;
+      var bezierY = 0.0;
+      bezierY += coeff*coeff*coeff*pontosSpline[0].Position.Y;
+      bezierY += 3*t*coeff*coeff*pontosSpline[1].Position.Y;
+      bezierY += 3*t*t*coeff*pontosSpline[2].Position.Y;
+      bezierY += t*t*t*pontosSpline[3].Position.Y;
+      return new Ponto4D(x: bezierX, y: bezierY);
     }
 
     public void Atualizar()
     {
-      AddLines();
-      AddBezier();
+      AdicionaLinhas();
+      AdicionaBezier();
 
       base.ObjetoAtualizar();
 
-      foreach (var point in _splinePoints)
+      foreach (var point in pontosSpline)
       {
         point.ObjetoAtualizar();
       }
 
-      foreach (var line in _splineLines)
+      foreach (var line in linhasSpline)
       {
         line.ObjetoAtualizar();
       }
@@ -147,56 +136,59 @@ namespace gcgcg
     {
       base.Desenhar();
 
-      foreach (var point in _splinePoints)
+      foreach (var point in pontosSpline)
       {
         point.Desenhar();
       }
 
-      foreach (var line in _splineLines)
+      foreach (var line in linhasSpline)
       {
         line.Desenhar();
       }
     }
 
-    public void SelectNextPoint()
+    public void SelecionarProximoPonto()
     {
-      UpdateSelectedPoint((_selectedPointIndex + 1) % _splinePoints.Count);
+      AtualizaPontoSelecionado((pontoSelecionado + 1) % pontosSpline.Count);
     }
 
-    private void UpdateSelectedPoint(int newSelectedPointIndex)
+    private void AtualizaPontoSelecionado(int novoPontoSelecionado)
     {
-      _selectedPointIndex = newSelectedPointIndex;
+      pontoSelecionado = novoPontoSelecionado;
 
-      var oldIndex = _selectedPointIndex == 0 ? _splinePoints.Count - 1 : _selectedPointIndex - 1;
-      _splinePoints[oldIndex].shaderCor = _splintPointShader;
-      _splinePoints[_selectedPointIndex].shaderCor = _splintPointSelectedShader;
+      var indexAntigo = pontoSelecionado == 0 ? pontosSpline.Count - 1 : pontoSelecionado - 1;
+      pontosSpline[indexAntigo].shaderCor = shaderSpline;
+      pontosSpline[pontoSelecionado].shaderCor = shaderPontoSelecionado;
     }
 
-    public void MoveSelectedPoint(Ponto4D move)
+    public void MoverPontoSelecionado(Ponto4D move)
     {
       pontosLista.Clear();
-      _splineLines.Clear();
-      _splinePoints[_selectedPointIndex].Move(move);
+      linhasSpline.Clear();
+      pontosSpline[pontoSelecionado].Move(move);
       Atualizar();
     }
 
-    public void AddPoint()
+    public void AdicionarPontoSpline()
     {
       pontosLista.Clear();
-      _splineLines.Clear();
+      linhasSpline.Clear();
 
-      var newPointIndex = _selectedPointIndex + 1;
-      _splinePoints.Insert(newPointIndex, GetPoint(0, 0));
-      UpdateSelectedPoint(newPointIndex);
+      pontosBezier += 1;
+      incrementoBezier = 1.0 / (double)pontosBezier;
       Atualizar();
     }
 
-    public void RemovePoint()
+    public void RemoverPontoSpline()
     {
       pontosLista.Clear();
-      _splineLines.Clear();
-      _splinePoints.Remove(_splinePoints[_selectedPointIndex]);
-      UpdateSelectedPoint(_selectedPointIndex);
+      linhasSpline.Clear();
+      
+      pontosBezier -= 1;
+      if (pontosBezier <= 0) {
+        pontosBezier = 1;
+      }
+      incrementoBezier = 1.0 / (double)pontosBezier;
       Atualizar();
     }
 
