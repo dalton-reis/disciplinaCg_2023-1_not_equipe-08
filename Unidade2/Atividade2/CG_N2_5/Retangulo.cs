@@ -33,10 +33,10 @@ namespace gcgcg
     }
     
     public bool IsPontoFora(Ponto4D ponto){
-      bool dentroEsq = (ponto.X < ptoSupDir.X) || (ponto.Y < ptoSupDir.Y);
-      bool dentroDir = (ponto.X > ptoInfEsq.X) || (ponto.Y > ptoInfEsq.Y);
+      bool foraEsq = (ponto.X < ptoSupDir.X) || (ponto.Y < ptoSupDir.Y);
+      bool foraDir = (ponto.X > ptoInfEsq.X) || (ponto.Y > ptoInfEsq.Y);
 
-      return dentroEsq || dentroDir;
+      return foraEsq || foraDir;
     }
   }
 }
