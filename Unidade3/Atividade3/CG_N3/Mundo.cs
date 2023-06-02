@@ -110,7 +110,7 @@ namespace gcgcg
             SwapBuffers();
         }
 
-        protected override async void OnUpdateFrame(FrameEventArgs e)
+        protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
 

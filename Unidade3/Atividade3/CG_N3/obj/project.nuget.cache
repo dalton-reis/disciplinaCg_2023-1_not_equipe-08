@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "dgSpecHash": "Z23wgIK+E/tXHIt/Sr/jdRAgg6W993Lwd+vMh0AZfwNubmf55kvnG8zs6H1I76/GruRI8Y6WypIS5MLXN5f2sw==",
+  "success": true,
+  "projectFilePath": "C:\\furb\\2023.1\\computacao-grafica\\disciplinaCg_2023-1_not_equipe-08\\Unidade3\\Atividade3\\CG_N3\\CG_N3.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\gabig\\.nuget\\packages\\opentk\\4.7.4\\opentk.4.7.4.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\opentk.compute\\4.7.4\\opentk.compute.4.7.4.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\opentk.core\\4.7.4\\opentk.core.4.7.4.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\opentk.graphics\\4.7.4\\opentk.graphics.4.7.4.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\opentk.input\\4.7.4\\opentk.input.4.7.4.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\opentk.mathematics\\4.7.4\\opentk.mathematics.4.7.4.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\opentk.openal\\4.7.4\\opentk.openal.4.7.4.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\opentk.redist.glfw\\3.3.7.27\\opentk.redist.glfw.3.3.7.27.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\opentk.windowing.common\\4.7.4\\opentk.windowing.common.4.7.4.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\opentk.windowing.desktop\\4.7.4\\opentk.windowing.desktop.4.7.4.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\opentk.windowing.graphicslibraryframework\\4.7.4\\opentk.windowing.graphicslibraryframework.4.7.4.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\stbimagesharp\\2.27.11\\stbimagesharp.2.27.11.nupkg.sha512",
+    "C:\\Users\\gabig\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\5.0.0\\system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

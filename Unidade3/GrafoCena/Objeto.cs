@@ -8,7 +8,7 @@ namespace GrafoCena
 
     public Objeto(ref char _rotulo)
     {
-      rotulo = _rotulo = charProximo(_rotulo);
+      rotulo = _rotulo = CharProximo(_rotulo);
       System.Console.WriteLine("Objeto: " + rotulo);
     }
 
@@ -43,7 +43,7 @@ namespace GrafoCena
       }
     }
 
-    private char charProximo(char atual) {
+    private char CharProximo(char atual) {
       return Convert.ToChar(atual + 1);
     }
 

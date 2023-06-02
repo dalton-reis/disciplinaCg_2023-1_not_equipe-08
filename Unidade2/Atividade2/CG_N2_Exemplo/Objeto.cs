@@ -37,7 +37,7 @@ namespace gcgcg
     public Objeto(Objeto paiRef, ref char _rotulo, Objeto objetoFilho = null)
     {
       this.paiRef = paiRef;
-      rotulo = _rotulo = Utilitario.charProximo(_rotulo);
+      rotulo = _rotulo = Utilitario.CharProximo(_rotulo);
       if (paiRef != null)
       {
         ObjetoNovo(objetoFilho);

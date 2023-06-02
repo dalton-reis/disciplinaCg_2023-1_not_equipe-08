@@ -51,13 +51,13 @@ namespace gcgcg
         if (objetoFilho == null)
         {
             this.objetosLista.Add(objeto);
-            objeto.Rotulo = this.rotulo = Utilitario.charProximo(this.rotulo);
+            objeto.Rotulo = this.rotulo = Utilitario.CharProximo(this.rotulo);
             this.objetoSelecionado = objeto;
         }
         else
         {
             objeto.FilhoAdicionar(objetoFilho);
-            objetoFilho.Rotulo = this.rotulo = Utilitario.charProximo(this.rotulo);
+            objetoFilho.Rotulo = this.rotulo = Utilitario.CharProximo(this.rotulo);
             this.objetoSelecionado = objetoFilho;
         }
     }
