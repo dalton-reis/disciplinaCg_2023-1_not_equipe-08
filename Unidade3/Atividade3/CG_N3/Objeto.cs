@@ -7,6 +7,7 @@ using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
+// using System.Linq;
 
 namespace gcgcg
 {
@@ -282,10 +283,102 @@ namespace gcgcg
             GL.DeleteProgram(_shaderObjeto.Handle);
         }
 
-        public int getQtdPontos(){
+        public int GetQtdPontos()
+        {
             return this.pontosLista.Count;
         }
 
+        public Objeto FilhoSelecionado(Ponto4D ponto)
+        {
+            bool selecionado = false;
+            var filhos = this.objetosLista;
+
+            for (int i = 0; i < filhos.Count; i++)
+            {
+                selecionado = filhos[i].IsSelecionado(ponto);
+
+                if (selecionado)
+                {
+                    return filhos[i];
+                }
+            }
+            return null;
+        }
+
+        public bool IsSelecionado(Ponto4D ponto)
+        {
+            var pontos = this.pontosLista;
+            bool resultado = false;
+            int j = pontos.Count - 1;
+
+            for (int i = 0; i < pontos.Count; i++)
+            {
+                if (pontos[i].Y < ponto.Y && pontos[j].Y >= ponto.Y ||
+                    pontos[j].Y < ponto.Y && pontos[i].Y >= ponto.Y)
+                {
+                    if (pontos[i].X + (ponto.Y - pontos[i].Y) /
+                       (pontos[j].Y - pontos[i].Y) *
+                       (pontos[j].X - pontos[i].X) < ponto.X)
+                    {
+                        resultado = !resultado;
+                    }
+                }
+                j = i;
+            }
+
+            return resultado;
+        }
+
+        public bool PossuiFilhos()
+        {
+            return this.objetosLista.Count > 0;
+        }
+        public int GetQtdFilhos()
+        {
+            return this.objetosLista.Count;
+        }
+
+        public Objeto GetObjetoPai()
+        {
+            return this.paiRef;
+        }
+
+        public Objeto GetObjetoFilho(Objeto? filho)
+        {
+            if (filho == null)
+            {
+                int lastIndex = this.objetosLista.Count - 1;
+                return this.objetosLista[lastIndex];
+            }
+
+            return this.objetosLista.Find(f => f.Equals(filho));
+        }
+
+        private void RemoveObjetoFilho(Objeto filho){
+            Objeto objetoFilho = GetObjetoFilho(filho);
+            this.objetosLista.Remove(objetoFilho);
+            this.ObjetoAtualizar();
+            this.Desenhar();
+        }
+
+        public void RemoveObjeto(Objeto filho)
+        {
+            // Objeto objetoPai = filho.paiRef;
+            // Objeto objetoFilho = objetoPai.GetObjetoFilho(filho);
+            // Objeto ultimoObjeto = filho.GetObjetoFilho(null);
+            //     filho.RemoveObjeto(ultimoObjeto);
+            if (filho.PossuiFilhos())
+            {
+                int qtdFilhos = filho.GetQtdFilhos();
+                for (int i=0; i < qtdFilhos; i++)
+                {
+                    Objeto ultimoObjeto = filho.GetObjetoFilho(null);
+                    filho.RemoveObjeto(ultimoObjeto);
+                }
+            }
+            this.RemoveObjetoFilho(filho);
+            // this.objetosLista.Remove(filho);
+        }
 #if CG_Debug
         protected string ImprimeToString()
         {

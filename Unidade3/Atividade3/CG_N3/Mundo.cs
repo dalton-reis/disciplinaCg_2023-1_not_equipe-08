@@ -21,6 +21,8 @@ namespace gcgcg
         Objeto mundo;
         private char rotuloAtual = '?';
         private Objeto objetoSelecionado = null;
+        private Objeto objetoParaRemover = null;
+        private List<Objeto> objetosExistentes = new List<Objeto>();
         private bool isNovoPoligono;
         private List<Ponto4D> pontosPoligono = new List<Ponto4D>();
 
@@ -87,14 +89,6 @@ namespace gcgcg
             _shaderVerde = new Shader("Shaders/shader.vert", "Shaders/shaderVerde.frag");
             _shaderAzul = new Shader("Shaders/shader.vert", "Shaders/shaderAzul.frag");
             #endregion
-
-            // List<Ponto4D> pontosPoligonoBandeira = new List<Ponto4D>();
-            // pontosPoligonoBandeira.Add(new Ponto4D(0.25, 0.25));
-            // pontosPoligonoBandeira.Add(new Ponto4D(0.75, 0.25));
-            // pontosPoligonoBandeira.Add(new Ponto4D(0.75, 0.75));
-            // pontosPoligonoBandeira.Add(new Ponto4D(0.50, 0.50));
-            // pontosPoligonoBandeira.Add(new Ponto4D(0.25, 0.75));
-            // objetoSelecionado = new Poligono(mundo, ref rotuloAtual, pontosPoligonoBandeira);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -123,6 +117,23 @@ namespace gcgcg
             }
             else
             {
+                if (input.IsKeyPressed(Keys.Enter))
+                {
+                    isNovoPoligono = false;
+                }
+                if (input.IsKeyPressed(Keys.D))
+                {
+                    if (objetoParaRemover != null)
+                    {
+                        Objeto pai = objetoParaRemover.GetObjetoPai();
+                        pai.RemoveObjeto(objetoParaRemover);
+
+                        objetosExistentes.Remove(objetoParaRemover);
+
+                        objetoSelecionado = null;
+                        objetoParaRemover = null;
+                    }
+                }
                 if (input.IsKeyPressed(Keys.G))
                 {
                     mundo.GrafocenaImprimir("");
@@ -220,35 +231,46 @@ namespace gcgcg
 
             Ponto4D novoPonto = new Ponto4D(xReal, yReal);
 
-            if (input.IsKeyPressed(Keys.Enter))
-            {
-                isNovoPoligono = false;
-            }
-
+            // adicao de poligonos
             if (isNovoPoligono)
             {
-                objetoSelecionado.PontosAlterar(novoPonto, objetoSelecionado.getQtdPontos() - 1);
+                objetoSelecionado.PontosAlterar(novoPonto, objetoSelecionado.GetQtdPontos() - 1);
                 objetoSelecionado.ObjetoAtualizar();
             }
 
             if (mouse.IsButtonPressed(MouseButton.Left))
             {
                 Objeto pai = objetoSelecionado;
-                if(objetoSelecionado == null){
+
+                if (objetoSelecionado == null)
+                {
                     pai = mundo;
                 }
 
-                if(!isNovoPoligono){
+                if (!isNovoPoligono)
+                {
                     objetoSelecionado = new Poligono(pai, ref rotuloAtual, new List<Ponto4D> { novoPonto, novoPonto });
                     isNovoPoligono = true;
+                    objetosExistentes.Add(objetoSelecionado);
                 }
-
-                if (isNovoPoligono)
+                else
                 {
                     objetoSelecionado.PontosAdicionar(novoPonto);
                     objetoSelecionado.ObjetoAtualizar();
                 }
+            }
 
+            // seleciona poligono para remover
+            if (mouse.IsButtonPressed(MouseButton.Right))
+            {
+                for (int i = 0; i < objetosExistentes.Count; i++)
+                {
+                    if (objetosExistentes[i].IsSelecionado(novoPonto))
+                    {
+                        objetoParaRemover = objetosExistentes[i];
+                        break;
+                    }
+                }
             }
             #endregion
         }
