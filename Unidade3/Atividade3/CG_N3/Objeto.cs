@@ -144,6 +144,11 @@ namespace gcgcg
             pontosLista[posicao] = pto;
         }
 
+        public List<Ponto4D> GetPontos()
+        {
+            return pontosLista;
+        }
+
         #endregion
 
         #region Objeto: Grafo de Cena
