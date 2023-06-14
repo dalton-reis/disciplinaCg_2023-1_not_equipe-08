@@ -288,23 +288,6 @@ namespace gcgcg
             return this.pontosLista.Count;
         }
 
-        public Objeto FilhoSelecionado(Ponto4D ponto)
-        {
-            bool selecionado = false;
-            var filhos = this.objetosLista;
-
-            for (int i = 0; i < filhos.Count; i++)
-            {
-                selecionado = filhos[i].IsSelecionado(ponto);
-
-                if (selecionado)
-                {
-                    return filhos[i];
-                }
-            }
-            return null;
-        }
-
         public bool IsSelecionado(Ponto4D ponto)
         {
             var pontos = this.pontosLista;
@@ -363,10 +346,6 @@ namespace gcgcg
 
         public void RemoveObjeto(Objeto filho)
         {
-            // Objeto objetoPai = filho.paiRef;
-            // Objeto objetoFilho = objetoPai.GetObjetoFilho(filho);
-            // Objeto ultimoObjeto = filho.GetObjetoFilho(null);
-            //     filho.RemoveObjeto(ultimoObjeto);
             if (filho.PossuiFilhos())
             {
                 int qtdFilhos = filho.GetQtdFilhos();
@@ -377,7 +356,6 @@ namespace gcgcg
                 }
             }
             this.RemoveObjetoFilho(filho);
-            // this.objetosLista.Remove(filho);
         }
 #if CG_Debug
         protected string ImprimeToString()
