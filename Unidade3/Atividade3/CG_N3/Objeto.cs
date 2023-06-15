@@ -7,7 +7,6 @@ using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-
 // using System.Linq;
 
 namespace gcgcg
@@ -19,27 +18,11 @@ namespace gcgcg
         protected Objeto paiRef;
         private List<Objeto> objetosLista = new List<Objeto>();
         private PrimitiveType primitivaTipo = PrimitiveType.LineLoop;
-
-        public PrimitiveType PrimitivaTipo
-        {
-            get => primitivaTipo;
-            set => primitivaTipo = value;
-        }
-
+        public PrimitiveType PrimitivaTipo { get => primitivaTipo; set => primitivaTipo = value; }
         private float primitivaTamanho = 1;
-
-        public float PrimitivaTamanho
-        {
-            get => primitivaTamanho;
-            set => primitivaTamanho = value;
-        }
-
+        public float PrimitivaTamanho { get => primitivaTamanho; set => primitivaTamanho = value; }
         private Shader _shaderObjeto = new Shader("Shaders/shader.vert", "Shaders/shaderBranca.frag");
-
-        public Shader shaderCor
-        {
-            set => _shaderObjeto = value;
-        }
+        public Shader shaderCor { set => _shaderObjeto = value; }
 
         // Vértices do objeto TODO: o objeto mundo deveria ter estes atributos abaixo?
         protected List<Ponto4D> pontosLista = new List<Ponto4D>();
@@ -48,8 +31,7 @@ namespace gcgcg
 
         // BBox do objeto
         private BBox bBox = new BBox();
-
-        public BBox Bbox() // FIXME: readonly
+        public BBox Bbox()  // FIXME: readonly
         {
             return bBox;
         }
@@ -59,7 +41,6 @@ namespace gcgcg
 
         /// Matrizes temporarias que sempre sao inicializadas com matriz Identidade entao podem ser "static".
         private static Transformacao4D matrizTmpTranslacao = new Transformacao4D();
-
         private static Transformacao4D matrizTmpTranslacaoInversa = new Transformacao4D();
         private static Transformacao4D matrizTmpEscala = new Transformacao4D();
         private static Transformacao4D matrizTmpRotacao = new Transformacao4D();
@@ -111,8 +92,7 @@ namespace gcgcg
 
             _vertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices,
-                BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
             _vertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(_vertexArrayObject);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
@@ -177,11 +157,9 @@ namespace gcgcg
         public List<Vector2> GetVertices()
         {
             List<Vector2> vertices = new List<Vector2>();
-            foreach (Ponto4D ponto in GetPontos())
-            {
+            foreach(Ponto4D ponto in GetPontos()){
                 vertices.Add(new Vector2(Convert.ToSingle(ponto.X), Convert.ToSingle(ponto.Y)));
             }
-
             return vertices;
         }
 
@@ -195,7 +173,6 @@ namespace gcgcg
             {
                 return this;
             }
-
             foreach (var objeto in objetosLista)
             {
                 var obj = objeto.GrafocenaBusca(_rotulo);
@@ -204,7 +181,6 @@ namespace gcgcg
                     return obj;
                 }
             }
-
             return null;
         }
 
@@ -225,48 +201,31 @@ namespace gcgcg
         {
             System.Console.WriteLine(matriz);
         }
-
         public void MatrizAtribuirIdentidade()
         {
             matriz.AtribuirIdentidade();
             ObjetoAtualizar();
         }
-
-        public void MatrizTranslacaoXYZ(double tx, double ty, double tz, Objeto poligono)
+        public void MatrizTranslacaoXYZ(double tx, double ty, double tz)
         {
-            //Pai
             Transformacao4D matrizTranslate = new Transformacao4D();
             matrizTranslate.AtribuirTranslacao(tx, ty, tz);
             matriz = matrizTranslate.MultiplicarMatriz(matriz);
-
-            //Filho
-            Objeto objetoFilho = GetObjetoFilho(poligono);
-            if (objetoFilho != null)
+            for (var i = 0; i < objetosLista.Count; i++)
             {
-                objetoFilho.matriz = matrizTranslate.MultiplicarMatriz(objetoFilho.matriz);
+                objetosLista[i].MatrizTranslacaoXYZ(tx, ty, tz);
             }
-
             ObjetoAtualizar();
         }
-
-        // public void MatrizTranslacaoXYZFilhos(double tx, double ty, double tz, Objeto poligono)
-        // {
-        //     //Pai
-        //     Transformacao4D matrizTranslate = new Transformacao4D();
-        //     matrizTranslate.AtribuirTranslacao(tx, ty, tz);
-        //     matriz = matrizTranslate.MultiplicarMatriz(matriz);
-        //     
-        //     //Filho
-        //     Objeto objetoFilho = GetObjetoFilho(poligono);
-        //     objetoFilho.matriz = matrizTranslate.MultiplicarMatriz(objetoFilho.matriz);
-        //     ObjetoAtualizar();
-        // }
-
         public void MatrizEscalaXYZ(double Sx, double Sy, double Sz)
         {
             Transformacao4D matrizScale = new Transformacao4D();
             matrizScale.AtribuirEscala(Sx, Sy, Sz);
             matriz = matrizScale.MultiplicarMatriz(matriz);
+            for (var i = 0; i < objetosLista.Count; i++)
+            {
+                objetosLista[i].MatrizEscalaXYZ(Sx, Sy, Sz);
+            }
             ObjetoAtualizar();
         }
 
@@ -286,12 +245,16 @@ namespace gcgcg
 
             matriz = matriz.MultiplicarMatriz(matrizGlobal);
 
+            for (var i = 0; i < objetosLista.Count; i++)
+            {
+                objetosLista[i].MatrizEscalaXYZBBox(Sx, Sy, Sz);
+            }
+
             ObjetoAtualizar();
         }
-
         public void MatrizRotacaoEixo(double angulo)
         {
-            switch (eixoRotacao) // FIXME: ainda não uso no exemplo
+            switch (eixoRotacao)  // FIXME: ainda não uso no exemplo
             {
                 case 'x':
                     matrizTmpRotacao.AtribuirRotacaoX(Transformacao4D.DEG_TO_RAD * angulo);
@@ -306,17 +269,22 @@ namespace gcgcg
                     Console.WriteLine("opção de eixoRotacao: ERRADA!");
                     break;
             }
-
+            for (var i = 0; i < objetosLista.Count; i++)
+            {
+                objetosLista[i].MatrizRotacaoEixo(angulo);
+            }
             ObjetoAtualizar();
         }
-
         public void MatrizRotacao(double angulo)
         {
             MatrizRotacaoEixo(angulo);
             matriz = matrizTmpRotacao.MultiplicarMatriz(matriz);
+            for (var i = 0; i < objetosLista.Count; i++)
+            {
+                objetosLista[i].MatrizRotacao(angulo);
+            }
             ObjetoAtualizar();
         }
-
         public void MatrizRotacaoZBBox(double angulo)
         {
             matrizGlobal.AtribuirIdentidade();
@@ -332,6 +300,11 @@ namespace gcgcg
             matrizGlobal = matrizTmpTranslacaoInversa.MultiplicarMatriz(matrizGlobal);
 
             matriz = matriz.MultiplicarMatriz(matrizGlobal);
+
+            for (var i = 0; i < objetosLista.Count; i++)
+            {
+                objetosLista[i].MatrizRotacaoZBBox(angulo);
+            }
 
             ObjetoAtualizar();
         }
@@ -372,13 +345,12 @@ namespace gcgcg
                     pontos[j].Y < ponto.Y && pontos[i].Y >= ponto.Y)
                 {
                     if (pontos[i].X + (ponto.Y - pontos[i].Y) /
-                        (pontos[j].Y - pontos[i].Y) *
-                        (pontos[j].X - pontos[i].X) < ponto.X)
+                       (pontos[j].Y - pontos[i].Y) *
+                       (pontos[j].X - pontos[i].X) < ponto.X)
                     {
                         resultado = !resultado;
                     }
                 }
-
                 j = i;
             }
 
@@ -389,7 +361,6 @@ namespace gcgcg
         {
             return this.objetosLista.Count > 0;
         }
-
         public int GetQtdFilhos()
         {
             return this.objetosLista.Count;
@@ -411,8 +382,7 @@ namespace gcgcg
             return this.objetosLista.Find(f => f.Equals(filho));
         }
 
-        private void RemoveObjetoFilho(Objeto filho)
-        {
+        private void RemoveObjetoFilho(Objeto filho){
             Objeto objetoFilho = GetObjetoFilho(filho);
             this.objetosLista.Remove(objetoFilho);
             this.ObjetoAtualizar();
@@ -423,18 +393,13 @@ namespace gcgcg
         {
             if (filho.PossuiFilhos())
             {
-                // var qtdFilhos = filho.GetQtdFilhos();
-                // //For está fazendo loop desnecessario
-                // for (var i = 0; i < qtdFilhos; i++)
-                // {
-                //     var ultimoObjeto = filho.GetObjetoFilho(null);
-                //     filho.RemoveObjeto(ultimoObjeto);
-                // }
-                
-                var ultimoObjeto = filho.GetObjetoFilho(null);
-                filho.RemoveObjeto(ultimoObjeto);
+                int qtdFilhos = filho.GetQtdFilhos();
+                for (int i=0; i < qtdFilhos; i++)
+                {
+                    Objeto ultimoObjeto = filho.GetObjetoFilho(null);
+                    filho.RemoveObjeto(ultimoObjeto);
+                }
             }
-
             this.RemoveObjetoFilho(filho);
         }
 #if CG_Debug
@@ -445,15 +410,15 @@ namespace gcgcg
             for (var i = 0; i < pontosLista.Count; i++)
             {
                 retorno += "P" + i + "[ " +
-                           string.Format("{0,10}", pontosLista[i].X) + " | " +
-                           string.Format("{0,10}", pontosLista[i].Y) + " | " +
-                           string.Format("{0,10}", pontosLista[i].Z) + " | " +
-                           string.Format("{0,10}", pontosLista[i].W) + " ]" + "\n";
+                string.Format("{0,10}", pontosLista[i].X) + " | " +
+                string.Format("{0,10}", pontosLista[i].Y) + " | " +
+                string.Format("{0,10}", pontosLista[i].Z) + " | " +
+                string.Format("{0,10}", pontosLista[i].W) + " ]" + "\n";
             }
-
             retorno += bBox.ToString();
             return (retorno);
         }
 #endif
+
     }
 }
