@@ -149,6 +149,20 @@ namespace gcgcg
             return pontosLista;
         }
 
+        public void RemoverPonto(int indice)
+        {
+            pontosLista.RemoveAt(indice);
+        }
+
+        public List<Vector2> GetVertices()
+        {
+            List<Vector2> vertices = new List<Vector2>();
+            foreach(Ponto4D ponto in GetPontos()){
+                vertices.Add(new Vector2(Convert.ToSingle(ponto.X), Convert.ToSingle(ponto.Y)));
+            }
+            return vertices;
+        }
+
         #endregion
 
         #region Objeto: Grafo de Cena

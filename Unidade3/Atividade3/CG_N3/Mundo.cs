@@ -200,6 +200,9 @@ namespace gcgcg
                 if(input.IsKeyPressed(Keys.P)){
                     isNovoPoligono = !isNovoPoligono;
                 }
+                if(input.IsKeyPressed(Keys.E)){
+                    AlteraVerticeProximo(true);
+                }
             }
             #endregion
 
@@ -255,6 +258,8 @@ namespace gcgcg
                         break;
                     }
                 }
+
+                AlteraVerticeProximo(false);
             }
             #endregion
         }
@@ -272,28 +277,23 @@ namespace gcgcg
             yReal = (2 * yReal) / janela.Y;
 
             Ponto4D pontoSel = new Ponto4D(xReal, yReal);
-            System.Console.WriteLine(pontoSel.ToString());
             #endregion
 
             if(objetoSelecionado != null && Matematica.Dentro(objetoSelecionado.Bbox(), pontoSel)){
-                System.Console.WriteLine("Selecionado é bbox");
                 ApresentaBbox();
                 return;
             }
 
             foreach( Objeto objeto in objetosExistentes)
             {
-                
-                System.Console.WriteLine("Entrou");
                 int N = 0;
                 List<Ponto4D> pontos = objeto.GetPontos();
-                Ponto4D inicioL = new Ponto4D( pontoSel.X, pontoSel.Y);
                 Ponto4D fimL = new Ponto4D( janela.X, pontoSel.Y);
                 for (var i = 0; i < pontos.Count-1; i++)
                 {
                     if(pontos[i].Y != pontos[i+1].Y)
                     {
-                        Ponto4D pontoInter = getPontoInterseccao(pontos[i], pontos[i+1], inicioL, fimL);
+                        Ponto4D pontoInter = GetPontoInterseccao(pontos[i], pontos[i+1], pontoSel, fimL);
                         if(pontoInter.X == pontoSel.X)
                         {
                             double slope1 = (pontoSel.Y - pontos[i].Y) / (pontoSel.X - pontos[i].X);
@@ -323,27 +323,25 @@ namespace gcgcg
                 if(N % 2 == 1)
                 {
                     objetoSelecionado = objeto;
-                    System.Console.WriteLine(N);
                     ApresentaBbox();
                     return;
                 } else {
-                    System.Console.WriteLine(N);
                     objetoSelecionado = null;
                 }
             }
         }
 
-        private Ponto4D getPontoInterseccao(Ponto4D ponto1, Ponto4D ponto2, Ponto4D inicioL, Ponto4D fimL)
+        private Ponto4D GetPontoInterseccao(Ponto4D ponto1, Ponto4D ponto2, Ponto4D pontoSel, Ponto4D fimL)
         {
-            double denominator = ((ponto1.X - ponto2.X) * (inicioL.Y - fimL.Y)) - ((ponto1.Y - ponto2.Y) * (inicioL.X - fimL.X));
+            double denominator = ((ponto1.X - ponto2.X) * (pontoSel.Y - fimL.Y)) - ((ponto1.Y - ponto2.Y) * (pontoSel.X - fimL.X));
 
             if (denominator == 0)
             {
                  System.Console.WriteLine("As retas são paralelas e não se interceptam.");
             }
 
-            double x = (((ponto1.X * ponto2.Y) - (ponto1.Y * ponto2.X)) * (inicioL.X - fimL.X) - (ponto1.X - ponto2.X) * ((inicioL.X * fimL.Y) - (inicioL.Y * fimL.X))) / denominator;
-            double y = (((ponto1.X * ponto2.Y) - (ponto1.Y * ponto2.X)) * (inicioL.Y - fimL.Y) - (ponto1.Y - ponto2.Y) * ((inicioL.X * fimL.Y) - (inicioL.Y * fimL.X))) / denominator;
+            double x = (((ponto1.X * ponto2.Y) - (ponto1.Y * ponto2.X)) * (pontoSel.X - fimL.X) - (ponto1.X - ponto2.X) * ((pontoSel.X * fimL.Y) - (pontoSel.Y * fimL.X))) / denominator;
+            double y = (((ponto1.X * ponto2.Y) - (ponto1.Y * ponto2.X)) * (pontoSel.Y - fimL.Y) - (ponto1.Y - ponto2.Y) * ((pontoSel.X * fimL.Y) - (pontoSel.Y * fimL.X))) / denominator;
 
             return new Ponto4D(x,y);
         }
@@ -361,6 +359,60 @@ namespace gcgcg
             objetoBbox.shaderCor = _shaderAmarela;
             objetoSelecionado.FilhoAdicionar(objetoBbox);
             objetoSelecionado.ObjetoAtualizar();
+        }
+
+        protected void AlteraVerticeProximo(bool isDelete)
+        {
+            float menorDistancia = float.MaxValue;
+            int indiceRemover = -1;
+            Vector2 mousePonto = ObterMousePosition();
+            if (objetoSelecionado != null && objetoSelecionado is Poligono)
+            {
+                Poligono poligonoSelecionado = (Poligono)objetoSelecionado;
+                List<Vector2> vertices = poligonoSelecionado.GetVertices();
+                
+                if (vertices.Count > 0)
+                {
+                    for (int i = 0; i < vertices.Count-1; i++)
+                    {
+                        float distancia = Vector2.Distance(vertices[i], mousePonto);
+
+                        if (distancia < menorDistancia)
+                        {
+                            menorDistancia = distancia;
+                            indiceRemover = i;
+                        }
+                    }
+                }
+            }
+            if(indiceRemover < 0){
+                return;
+            }
+            if(isDelete){
+                objetoSelecionado.RemoverPonto(indiceRemover);
+            } else {
+                Ponto4D ponto = new Ponto4D(mousePonto.X, mousePonto.Y);
+                objetoSelecionado.PontosAlterar(ponto, indiceRemover);
+            }
+            objetoSelecionado.ObjetoAtualizar();
+        }
+
+        
+        protected Vector2 ObterMousePosition()
+        {
+            #region  Mouse
+            Vector2i janela = this.ClientRectangle.Size;
+
+            var mouse = MouseState;
+            var xReal = mouse.X - (janela.X / 2);
+            var yReal = (janela.Y / 2) - mouse.Y;
+
+            xReal = (2 * xReal) / janela.X;
+            yReal = (2 * yReal) / janela.Y;
+
+            Vector2 pontoMouse = new Vector2(xReal, yReal);
+            return pontoMouse;
+            #endregion
         }
 
         protected override void OnResize(ResizeEventArgs e)
