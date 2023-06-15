@@ -323,10 +323,12 @@ namespace gcgcg
                 if(N % 2 == 1)
                 {
                     objetoSelecionado = objeto;
+                    objetoParaRemover = objeto;
                     ApresentaBbox();
                     return;
                 } else {
                     objetoSelecionado = null;
+                    objetoParaRemover = null;
                 }
             }
         }
