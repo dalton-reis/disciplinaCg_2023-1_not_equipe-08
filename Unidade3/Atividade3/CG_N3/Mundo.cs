@@ -251,6 +251,9 @@ namespace gcgcg
                 {
                     AlteraVerticeProximo(true);
                 }
+                if(input.IsKeyPressed(Keys.E)){
+                    AlteraVerticeProximo(true);
+                }
             }
 
             #endregion
@@ -489,6 +492,60 @@ namespace gcgcg
             Vector2 pontoMouse = new Vector2(xReal, yReal);
             return pontoMouse;
 
+            #endregion
+        }
+
+        protected void AlteraVerticeProximo(bool isDelete)
+        {
+            float menorDistancia = float.MaxValue;
+            int indiceRemover = -1;
+            Vector2 mousePonto = ObterMousePosition();
+            if (objetoSelecionado != null && objetoSelecionado is Poligono)
+            {
+                Poligono poligonoSelecionado = (Poligono)objetoSelecionado;
+                List<Vector2> vertices = poligonoSelecionado.GetVertices();
+                
+                if (vertices.Count > 0)
+                {
+                    for (int i = 0; i < vertices.Count-1; i++)
+                    {
+                        float distancia = Vector2.Distance(vertices[i], mousePonto);
+
+                        if (distancia < menorDistancia)
+                        {
+                            menorDistancia = distancia;
+                            indiceRemover = i;
+                        }
+                    }
+                }
+            }
+            if(indiceRemover < 0){
+                return;
+            }
+            if(isDelete){
+                objetoSelecionado.RemoverPonto(indiceRemover);
+            } else {
+                Ponto4D ponto = new Ponto4D(mousePonto.X, mousePonto.Y);
+                objetoSelecionado.PontosAlterar(ponto, indiceRemover);
+            }
+            objetoSelecionado.ObjetoAtualizar();
+        }
+
+        
+        protected Vector2 ObterMousePosition()
+        {
+            #region  Mouse
+            Vector2i janela = this.ClientRectangle.Size;
+
+            var mouse = MouseState;
+            var xReal = mouse.X - (janela.X / 2);
+            var yReal = (janela.Y / 2) - mouse.Y;
+
+            xReal = (2 * xReal) / janela.X;
+            yReal = (2 * yReal) / janela.Y;
+
+            Vector2 pontoMouse = new Vector2(xReal, yReal);
+            return pontoMouse;
             #endregion
         }
 
