@@ -27,17 +27,6 @@ namespace gcgcg
         new Ponto4D(-0.2,  0.2, -0.2)  // 7 - atrás cima esq
       };
 
-      float[] vertices = {
-        -0.2f, -0.2f,  0.2f,
-         0.2f, -0.2f,  0.2f,
-         0.2f,  0.2f,  0.2f,
-        -0.2f,  0.2f,  0.2f,
-        -0.2f, -0.2f,  -0.2f,
-         0.2f, -0.2f,  -0.2f,
-         0.2f,  0.2f,  -0.2f,
-        -0.2f,  0.2f,  -0.2f
-      };
-
       // Frente
       base.PontosAdicionar(pontos[2]);
       base.PontosAdicionar(pontos[1]);
