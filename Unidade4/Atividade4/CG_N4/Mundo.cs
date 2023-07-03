@@ -8,6 +8,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Windowing.Desktop;
+using System.Collections.Generic;
 using System;
 using OpenTK.Mathematics;
 
@@ -63,7 +64,8 @@ namespace gcgcg
         private int _vertexArrayObject;
         private Shader _shader;
         private Texture _texture;
-
+        private List<Ponto4D> pontosCamera = new List<Ponto4D>();
+        private int count = 0;
         public Mundo(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
                : base(gameWindowSettings, nativeWindowSettings)
         {
@@ -153,8 +155,12 @@ namespace gcgcg
             objetoSelecionado.shaderCor = _shader;
             #endregion
 
-            _camera = new Camera(Vector3.UnitZ, Size.X / (float)Size.Y);
+            FormaCircunferencia();
+
+            _camera = new Camera(Vector3.UnitZ*10, Size.X / (float)Size.Y );
         }
+
+        
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
@@ -246,7 +252,19 @@ namespace gcgcg
                 _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
             if (input.IsKeyDown(Keys.LeftShift))
                 _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
-
+            if (input.IsKeyPressed(Keys.N)){
+                count +=1;
+                float x = (float)pontosCamera[count].X;
+                float y = (float)pontosCamera[count].Y;
+                _camera.Position = new Vector3(x, 0, y);
+                _camera.Yaw += count * 5;
+            }
+            if (input.IsKeyPressed(Keys.M)){
+                /*count -=1;
+                float x = (float)pontosCamera[count].X;
+                float y = (float)pontosCamera[count].Y;*/
+                _camera.Position -= new Vector3( -0.5f, 0, 0);
+            }
             #endregion
 
             #region  Mouse
@@ -283,6 +301,13 @@ namespace gcgcg
 
             #endregion
 
+        }
+
+        public void FormaCircunferencia()
+        {
+            for(int x=0; x<360; x+=5){
+                pontosCamera.Add(Matematica.GerarPtosCirculo(x, 0.1));
+            }
         }
 
         protected override void OnResize(ResizeEventArgs e)
