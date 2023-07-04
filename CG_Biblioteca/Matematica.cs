@@ -17,8 +17,8 @@ namespace CG_Biblioteca
     {
       Ponto4D pto = new Ponto4D();
       pto.X = (raio * Math.Cos(Math.PI * angulo / 180.0));
-      pto.Y = (raio * Math.Sin(Math.PI * angulo / 180.0));
-      pto.Z = 0;
+      pto.Y = 0;
+      pto.Z = (raio * Math.Sin(Math.PI * angulo / 180.0));
       return (pto);
     }
 

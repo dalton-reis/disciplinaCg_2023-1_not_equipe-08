@@ -58,6 +58,8 @@ namespace gcgcg
         private Shader _shaderAmarela;
 
         private Camera _camera;
+        private Vector3 _objectPosition;
+        private float _rotationAngle;
 
         private int _elementBufferObject;
         private int _vertexBufferObject;
@@ -157,10 +159,12 @@ namespace gcgcg
 
             FormaCircunferencia();
 
-            _camera = new Camera(Vector3.UnitZ*10, Size.X / (float)Size.Y );
+            _objectPosition = Vector3.Zero;
+            _rotationAngle = 0f;
+            _camera = new Camera(Vector3.UnitZ * 3, Vector3.Zero, Size.X / (float)Size.Y);
         }
 
-        
+
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
@@ -186,6 +190,15 @@ namespace gcgcg
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
+
+
+            // faz o cubo girar
+            _rotationAngle += 0.01f;
+            float radius = 1;
+            float x = (float)Math.Sin(_rotationAngle) * radius;
+            float z = (float)Math.Cos(_rotationAngle) * radius;
+            _camera.Position = new Vector3(x, 0f, z);
+            _camera.Target = _objectPosition;
 
             // ☞ 396c2670-8ce0-4aff-86da-0f58cd8dcfdc   TODO: forma otimizada para teclado.
             #region Teclado
@@ -252,19 +265,6 @@ namespace gcgcg
                 _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
             if (input.IsKeyDown(Keys.LeftShift))
                 _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
-            if (input.IsKeyPressed(Keys.N)){
-                count +=1;
-                float x = (float)pontosCamera[count].X;
-                float y = (float)pontosCamera[count].Y;
-                _camera.Position = new Vector3(x, 0, y);
-                _camera.Yaw += count * 5;
-            }
-            if (input.IsKeyPressed(Keys.M)){
-                /*count -=1;
-                float x = (float)pontosCamera[count].X;
-                float y = (float)pontosCamera[count].Y;*/
-                _camera.Position -= new Vector3( -0.5f, 0, 0);
-            }
             #endregion
 
             #region  Mouse
@@ -305,8 +305,9 @@ namespace gcgcg
 
         public void FormaCircunferencia()
         {
-            for(int x=0; x<360; x+=5){
-                pontosCamera.Add(Matematica.GerarPtosCirculo(x, 0.1));
+            for (int x = 0; x < 360; x += 2)
+            {
+                pontosCamera.Add(Matematica.GerarPtosCirculo(x, 0.5));
             }
         }
 

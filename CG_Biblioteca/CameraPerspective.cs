@@ -12,13 +12,16 @@ namespace CG_Biblioteca
         private float _yaw = -MathHelper.PiOver2; // Without this, you would be started rotated 90 degrees right.
         private float _fov = MathHelper.PiOver2;
 
-        public Camera(Vector3 position, float aspectRatio)
+        public Camera(Vector3 position, Vector3 target, float aspectRatio)
         {
             Position = position;
+            Target = target;
             AspectRatio = aspectRatio;
         }
 
         public Vector3 Position { get; set; }
+        
+        public Vector3 Target { get; set; }
 
         public float AspectRatio { private get; set; }
 
@@ -61,7 +64,8 @@ namespace CG_Biblioteca
 
         public Matrix4 GetViewMatrix()
         {
-            return Matrix4.LookAt(Position, Position + _front, _up);
+            // return Matrix4.LookAt(Position, Position + _front, _up);
+            return Matrix4.LookAt(Position, Target, _up);
         }
 
         public Matrix4 GetProjectionMatrix()
