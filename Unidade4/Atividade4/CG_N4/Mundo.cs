@@ -18,153 +18,109 @@ namespace gcgcg
 {
     public class Mundo : GameWindow
     {
-        Objeto mundo;
-        private char rotuloNovo = '?';
-        private Objeto objetoSelecionado = null;
-
-        private readonly float[] _sruEixos =
+        private readonly float[] _vertices =
         {
-      -0.5f,  0.0f,  0.0f, /* X- */      0.5f,  0.0f,  0.0f, /* X+ */
-       0.0f, -0.5f,  0.0f, /* Y- */      0.0f,  0.5f,  0.0f, /* Y+ */
-       0.0f,  0.0f, -0.5f, /* Z- */      0.0f,  0.0f,  0.5f  /* Z+ */
-    };
+            // Positions          Normals              Texture coords
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+             0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-        private readonly float[] verticesText = {
-      //Pontos             //Cood textura
-      -0.25f, -0.25f,  0.25f, 0.0f, 0.0f,
-       0.25f, -0.25f,  0.25f, 1.0f, 0.0f,
-       0.25f,  0.25f,  0.25f, 1.0f, 1.0f,
-      -0.25f,  0.25f,  0.25f, 0.0f, 1.0f,
-      -0.25f, -0.25f, -0.25f, 0.0f, 0.0f,
-       0.25f, -0.25f, -0.25f, 1.0f, 0.0f,
-       0.25f,  0.25f, -0.25f, 1.0f, 1.0f,
-      -0.25f,  0.25f, -0.25f, 0.0f, 1.0f
-    };
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
 
-        private readonly uint[] indicesText =
-      {
-      0, 1, 3, 1, 2, 3,
-      1, 5, 2, 5, 6, 2,
-      4, 5, 7, 5, 6, 7,
-      0, 4, 3, 4, 7, 3,
-      0, 1, 4, 1, 5, 4,
-      3, 2, 7, 2, 6, 7,
-    };
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-        private int _vertexBufferObject_sruEixos;
-        private int _vertexArrayObject_sruEixos;
+             0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-        private Shader _shaderBranca;
-        private Shader _shaderAmarela;
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
+        };
+
+        private readonly Vector3 _posLuz = new Vector3(1.2f, 1.0f, 2.0f);
+
+        private int _vertexBufferObjectLight;
+
+        private int _cubo;
+
+        private Shader _shaderIluminacao;
+        private Texture _texturaPrincipal;
+        private Texture _texturaSpecular;
 
         private Camera _camera;
-        private Vector3 _objectPosition;
-        private float _rotationAngle;
+        private Vector3 _posicaoObjeto;
+        private float _anguloRotacao;
 
-        private int _elementBufferObject;
-        private int _vertexBufferObject;
-        private int _vertexArrayObject;
-        private Shader _shader;
-        private Texture _texture;
-        private List<Ponto4D> pontosCamera = new List<Ponto4D>();
-        private int count = 0;
         public Mundo(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
-               : base(gameWindowSettings, nativeWindowSettings)
+            : base(gameWindowSettings, nativeWindowSettings)
         {
-            mundo = new Objeto(null, ref rotuloNovo);
-        }
-
-        private void Diretivas()
-        {
-#if DEBUG
-            Console.WriteLine("Debug version");
-#endif
-#if RELEASE
-    Console.WriteLine("Release version");
-#endif
-#if CG_Gizmo
-            Console.WriteLine("#define CG_Gizmo  // debugar gráfico.");
-#endif
-#if CG_OpenGL
-            Console.WriteLine("#define CG_OpenGL // render OpenGL.");
-#endif
-#if CG_DirectX
-      Console.WriteLine("#define CG_DirectX // render DirectX.");
-#endif
-#if CG_Privado
-      Console.WriteLine("#define CG_Privado // código do professor.");
-#endif
-            Console.WriteLine("__________________________________ \n");
         }
 
         protected override void OnLoad()
         {
             base.OnLoad();
 
-            Diretivas();
+            GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-            GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            GL.Enable(EnableCap.DepthTest);
 
-            GL.Enable(EnableCap.DepthTest);// Ativar teste de profundidade
-            /*GL.Enable(EnableCap.CullFace);     // Desenha os dois lados da face
-            GL.FrontFace(FrontFaceDirection.Cw);
-            GL.CullFace(CullFaceMode.FrontAndBack);*/
+            _vertexBufferObjectLight = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObjectLight);
+            GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
 
-            #region Cores
-            _shaderBranca = new Shader("Shaders/shader.vert", "Shaders/shaderBranca.frag");
-            _shaderAmarela = new Shader("Shaders/shader.vert", "Shaders/shaderAmarela.frag");
-            #endregion
+            _cubo = GL.GenVertexArray();
+            GL.BindVertexArray(_cubo);
 
-            #region Eixos: SRU  
-            _vertexBufferObject_sruEixos = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject_sruEixos);
-            GL.BufferData(BufferTarget.ArrayBuffer, _sruEixos.Length * sizeof(float), _sruEixos, BufferUsageHint.StaticDraw);
-            _vertexArrayObject_sruEixos = GL.GenVertexArray();
-            GL.BindVertexArray(_vertexArrayObject_sruEixos);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
-            #endregion
 
-            GL.Enable(EnableCap.Texture2D);
+            _shaderIluminacao = new Shader("Shaders/shader.vert", "Shaders/lighting.frag");
+            {
+                var positionLocation = _shaderIluminacao.GetAttribLocation("aPos");
+                GL.EnableVertexAttribArray(positionLocation);
+                GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
 
-            _vertexArrayObject = GL.GenVertexArray();
-            GL.BindVertexArray(_vertexArrayObject);
+                var normalLocation = _shaderIluminacao.GetAttribLocation("aNormal");
+                GL.EnableVertexAttribArray(normalLocation);
+                GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
 
-            _vertexBufferObject = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, verticesText.Length * sizeof(float), verticesText, BufferUsageHint.StaticDraw);
+                var texCoordLocation = _shaderIluminacao.GetAttribLocation("aTexCoords");
+                GL.EnableVertexAttribArray(texCoordLocation);
+                GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
+            }
 
-            _elementBufferObject = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indicesText.Length * sizeof(uint), indicesText, BufferUsageHint.StaticDraw);
+            _texturaPrincipal = Texture.LoadFromFile("Texture/Gato_gabi.png");
+            _texturaSpecular = Texture.LoadFromFile("Texture/teste.png");
 
-            _shader = new Shader("Shaders/shaderText.vert", "Shaders/shaderText.frag");
-            _shader.Use();
-
-            int vertexLocation = _shader.GetAttribLocation("aPosition");
-            GL.EnableVertexAttribArray(vertexLocation);
-            GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-            int texCoordLocation = _shader.GetAttribLocation("aTexCoord");
-            GL.EnableVertexAttribArray(texCoordLocation);
-            GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-            _texture = Texture.LoadFromFile("Texture/Gato_gabi.png");
-            _texture.Use(TextureUnit.Texture0);
-
-            #region Objeto: Cubo
-            objetoSelecionado = new Cubo(mundo, ref rotuloNovo);
-            objetoSelecionado.shaderCor = _shader;
-            #endregion
-
-            FormaCircunferencia();
-
-            _objectPosition = Vector3.Zero;
-            _rotationAngle = 0f;
-            _camera = new Camera(Vector3.UnitZ * 3, Vector3.Zero, Size.X / (float)Size.Y);
+            _posicaoObjeto = Vector3.Zero;
+            _anguloRotacao = 0f;
+            _camera = new Camera(Vector3.UnitZ * 5, Vector3.Zero, Size.X / (float)Size.Y);
         }
-
-
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
@@ -172,143 +128,57 @@ namespace gcgcg
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            mundo.Desenhar(new Transformacao4D(), _camera);
+            GL.BindVertexArray(_cubo);
 
-            GL.BindVertexArray(_vertexArrayObject);
+ 
+            _texturaPrincipal.Use(TextureUnit.Texture0);
+            _texturaSpecular.Use(TextureUnit.Texture1);
+            _shaderIluminacao.Use();
 
-            _texture.Use(TextureUnit.Texture0);
-            _shader.Use();
+            _shaderIluminacao.SetMatrix4("model", Matrix4.Identity);
+            _shaderIluminacao.SetMatrix4("view", _camera.GetViewMatrix());
+            _shaderIluminacao.SetMatrix4("projection", _camera.GetProjectionMatrix());
 
-            GL.DrawElements(PrimitiveType.Triangles, indicesText.Length, DrawElementsType.UnsignedInt, 0);
+            _shaderIluminacao.SetVector3("viewPos", _camera.Position);
 
-#if CG_Gizmo
-            Gizmo_Sru3D();
-#endif
+            _shaderIluminacao.SetInt("material.diffuse", 0);
+            _shaderIluminacao.SetInt("material.specular", 1);
+            _shaderIluminacao.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
+            _shaderIluminacao.SetFloat("material.shininess", 32.0f);
+
+            _shaderIluminacao.SetVector3("light.position", _posLuz);
+            _shaderIluminacao.SetVector3("light.ambient", new Vector3(0.2f));
+            _shaderIluminacao.SetVector3("light.diffuse", new Vector3(0.5f));
+            _shaderIluminacao.SetVector3("light.specular", new Vector3(1.0f));
+
+
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
             SwapBuffers();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
-
-
-            // faz o cubo girar
-            _rotationAngle += 0.01f;
-            float radius = 1;
-            float x = (float)Math.Sin(_rotationAngle) * radius;
-            float z = (float)Math.Cos(_rotationAngle) * radius;
+            _anguloRotacao += 0.0008f;
+            float radius = 2;
+            float x = (float)Math.Sin(_anguloRotacao) * radius;
+            float z = (float)Math.Cos(_anguloRotacao) * radius;
             _camera.Position = new Vector3(x, 0f, z);
-            _camera.Target = _objectPosition;
+            _camera.Target = _posicaoObjeto;
 
             // ☞ 396c2670-8ce0-4aff-86da-0f58cd8dcfdc   TODO: forma otimizada para teclado.
             #region Teclado
             var input = KeyboardState;
             if (input.IsKeyDown(Keys.Escape))
                 Close();
-            if (input.IsKeyPressed(Keys.Space))
-            {
-                if (objetoSelecionado == null)
-                    objetoSelecionado = mundo;
-                objetoSelecionado.shaderCor = _shaderBranca;
-                objetoSelecionado = mundo.GrafocenaBuscaProximo(objetoSelecionado);
-                objetoSelecionado.shaderCor = _shaderAmarela;
-            }
-            if (input.IsKeyPressed(Keys.G))
-                mundo.GrafocenaImprimir("");
-            if (input.IsKeyPressed(Keys.P) && objetoSelecionado != null)
-                System.Console.WriteLine(objetoSelecionado.ToString());
-            if (input.IsKeyPressed(Keys.M) && objetoSelecionado != null)
-                objetoSelecionado.MatrizImprimir();
-            if (input.IsKeyPressed(Keys.I) && objetoSelecionado != null)
-                objetoSelecionado.MatrizAtribuirIdentidade();
-            if (input.IsKeyPressed(Keys.Left) && objetoSelecionado != null)
-                objetoSelecionado.MatrizTranslacaoXYZ(-0.05, 0, 0);
-            if (input.IsKeyPressed(Keys.Right) && objetoSelecionado != null)
-                objetoSelecionado.MatrizTranslacaoXYZ(0.05, 0, 0);
-            if (input.IsKeyPressed(Keys.Up) && objetoSelecionado != null)
-                objetoSelecionado.MatrizTranslacaoXYZ(0, 0.05, 0);
-            if (input.IsKeyPressed(Keys.Down) && objetoSelecionado != null)
-                objetoSelecionado.MatrizTranslacaoXYZ(0, -0.05, 0);
-            if (input.IsKeyPressed(Keys.O) && objetoSelecionado != null)
-                objetoSelecionado.MatrizTranslacaoXYZ(0, 0, 0.05);
-            if (input.IsKeyPressed(Keys.L) && objetoSelecionado != null)
-                objetoSelecionado.MatrizTranslacaoXYZ(0, 0, -0.05);
-            if (input.IsKeyPressed(Keys.PageUp) && objetoSelecionado != null)
-                objetoSelecionado.MatrizEscalaXYZ(2, 2, 2);
-            if (input.IsKeyPressed(Keys.PageDown) && objetoSelecionado != null)
-                objetoSelecionado.MatrizEscalaXYZ(0.5, 0.5, 0.5);
-            if (input.IsKeyPressed(Keys.Home) && objetoSelecionado != null)
-                objetoSelecionado.MatrizEscalaXYZBBox(0.5, 0.5, 0.5);
-            if (input.IsKeyPressed(Keys.End) && objetoSelecionado != null)
-                objetoSelecionado.MatrizEscalaXYZBBox(2, 2, 2);
-            if (input.IsKeyPressed(Keys.D1) && objetoSelecionado != null)
-                objetoSelecionado.MatrizRotacao(10);
-            if (input.IsKeyPressed(Keys.D2) && objetoSelecionado != null)
-                objetoSelecionado.MatrizRotacao(-10);
-            if (input.IsKeyPressed(Keys.D3) && objetoSelecionado != null)
-                objetoSelecionado.MatrizRotacaoZBBox(10);
-            if (input.IsKeyPressed(Keys.D4) && objetoSelecionado != null)
-                objetoSelecionado.MatrizRotacaoZBBox(-10);
-
-            const float cameraSpeed = 1.5f;
-            if (input.IsKeyDown(Keys.Z))
-                _camera.Position = Vector3.UnitZ;
-            if (input.IsKeyDown(Keys.W))
-                _camera.Position += _camera.Front * cameraSpeed * (float)e.Time; // Forward
-            if (input.IsKeyDown(Keys.S))
-                _camera.Position -= _camera.Front * cameraSpeed * (float)e.Time; // Backwards
-            if (input.IsKeyDown(Keys.A))
-                _camera.Position -= _camera.Right * cameraSpeed * (float)e.Time; // Left
-            if (input.IsKeyDown(Keys.D))
-                _camera.Position += _camera.Right * cameraSpeed * (float)e.Time; // Right
-            if (input.IsKeyDown(Keys.RightShift))
-                _camera.Position += _camera.Up * cameraSpeed * (float)e.Time; // Up
-            if (input.IsKeyDown(Keys.LeftShift))
-                _camera.Position -= _camera.Up * cameraSpeed * (float)e.Time; // Down
             #endregion
-
-            #region  Mouse
-            Vector2i janela = this.ClientRectangle.Size;
-            var mouse = MouseState;
-            // float xReal = mouse.X - (janela.X / 2);
-            // float yReal = (janela.Y / 2) - mouse.Y;
-
-            // xReal = (2 * xReal) / janela.X;
-            // yReal = (2 * yReal) / janela.Y;
-
-            if (MouseState.IsButtonPressed(MouseButton.Left))
-            {
-                System.Console.WriteLine("MouseState.IsButtonPressed(MouseButton.Left)");
-                System.Console.WriteLine("__ Valores do Espaço de Tela");
-                System.Console.WriteLine("Vector2 mousePosition: " + MousePosition);
-                System.Console.WriteLine("Vector2i windowSize: " + Size);
-            }
-            if (MouseState.IsButtonDown(MouseButton.Right) && objetoSelecionado != null)
-            {
-                System.Console.WriteLine("MouseState.IsButtonDown(MouseButton.Right)");
-
-                int janelaLargura = Size.X;
-                int janelaAltura = Size.Y;
-                Ponto4D mousePonto = new Ponto4D(MousePosition.X, MousePosition.Y);
-                Ponto4D sruPonto = Utilitario.NDC_TelaSRU(janelaLargura, janelaAltura, mousePonto);
-
-                objetoSelecionado.PontosAlterar(sruPonto, 0);
-            }
-            if (MouseState.IsButtonReleased(MouseButton.Right))
-            {
-                System.Console.WriteLine("MouseState.IsButtonReleased(MouseButton.Right)");
-            }
-
-            #endregion
-
         }
 
-        public void FormaCircunferencia()
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
-            for (int x = 0; x < 360; x += 2)
-            {
-                pontosCamera.Add(Matematica.GerarPtosCirculo(x, 0.5));
-            }
+            base.OnMouseWheel(e);
+
+            _camera.Fov -= e.OffsetY;
         }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -316,56 +186,8 @@ namespace gcgcg
             base.OnResize(e);
 
             GL.Viewport(0, 0, Size.X, Size.Y);
+            _camera.AspectRatio = Size.X / (float)Size.Y;
         }
-
-        protected override void OnUnload()
-        {
-            mundo.OnUnload();
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.BindVertexArray(0);
-            GL.UseProgram(0);
-
-            GL.DeleteBuffer(_vertexBufferObject_sruEixos);
-            GL.DeleteVertexArray(_vertexArrayObject_sruEixos);
-
-            GL.DeleteProgram(_shaderBranca.Handle);
-            GL.DeleteProgram(_shaderAmarela.Handle);
-
-            base.OnUnload();
-        }
-
-#if CG_Gizmo
-        private void Gizmo_Sru3D()
-        {
-#if CG_OpenGL && !CG_DirectX
-            var model = Matrix4.Identity;
-            GL.BindVertexArray(_vertexArrayObject_sruEixos);
-            // EixoX
-            /*_shaderVermelha.SetMatrix4("model", model);
-            _shaderVermelha.SetMatrix4("view", _camera.GetViewMatrix());
-            _shaderVermelha.SetMatrix4("projection", _camera.GetProjectionMatrix());
-            _shaderVermelha.Use();
-            GL.DrawArrays(PrimitiveType.Lines, 0, 2);
-            // EixoY
-            _shaderVerde.SetMatrix4("model", model);
-            _shaderVerde.SetMatrix4("view", _camera.GetViewMatrix());
-            _shaderVerde.SetMatrix4("projection", _camera.GetProjectionMatrix());
-            _shaderVerde.Use();
-            GL.DrawArrays(PrimitiveType.Lines, 2, 2);
-            // EixoZ
-            _shaderAzul.SetMatrix4("model", model);
-            _shaderAzul.SetMatrix4("view", _camera.GetViewMatrix());
-            _shaderAzul.SetMatrix4("projection", _camera.GetProjectionMatrix());
-            _shaderAzul.Use();
-            GL.DrawArrays(PrimitiveType.Lines, 4, 2);*/
-#elif CG_DirectX && !CG_OpenGL
-      Console.WriteLine(" .. Coloque aqui o seu código em DirectX");
-#elif (CG_DirectX && CG_OpenGL) || (!CG_DirectX && !CG_OpenGL)
-      Console.WriteLine(" .. ERRO de Render - escolha OpenGL ou DirectX !!");
-#endif
-        }
-#endif
 
     }
 }
